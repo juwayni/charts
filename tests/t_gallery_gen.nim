@@ -10,8 +10,10 @@ proc renderAndSave(name: string, drawProc: proc(ctx: Context, font: Font, bounds
   let bounds = rect(0, 0, 800, 600)
   drawProc(ctx, font, bounds)
   createDir("output")
+  createDir("output_gallery")
   img.writeFile("output/chart_" & name & ".png")
-  echo "Generated: output/chart_" & name & ".png"
+  img.writeFile("output_gallery/chart_" & name & ".png")
+  echo "Generated: output/chart_" & name & ".png and output_gallery/chart_" & name & ".png"
 
 proc main() =
   let cfg = defaultChartConfig()
@@ -715,8 +717,10 @@ proc main() =
     easeOutBack
   )
   createDir("output")
+  createDir("output_gallery")
   discard saveAnimationFrames(frames, "output", "anim_barchart")
-  echo "Generated ", frames.len, " animation frames in output/anim_barchart_*.png"
+  discard saveAnimationFrames(frames, "output_gallery", "anim_barchart")
+  echo "Generated ", frames.len, " animation frames in output/ and output_gallery/"
 
 when isMainModule:
   main()
