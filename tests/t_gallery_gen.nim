@@ -9,11 +9,9 @@ proc renderAndSave(name: string, drawProc: proc(ctx: Context, font: Font, bounds
   let ctx = newContext(img)
   let bounds = rect(0, 0, 800, 600)
   drawProc(ctx, font, bounds)
-  createDir("output")
   createDir("output_gallery")
-  img.writeFile("output/chart_" & name & ".png")
   img.writeFile("output_gallery/chart_" & name & ".png")
-  echo "Generated: output/chart_" & name & ".png and output_gallery/chart_" & name & ".png"
+  echo "Generated: output_gallery/chart_" & name & ".png"
 
 proc main() =
   let cfg = defaultChartConfig()
@@ -645,66 +643,12 @@ proc main() =
     drawPyramidChart(ctx, font, b, pyramidCohorts, cfg)
   )
 
-  # 60. Bump Chart
-  let bumpData = BumpChartData(
-    timeLabels: @["2021", "2022", "2023", "2024"],
-    series: @[
-      newBumpSeries("Team Alpha", @[1, 2, 1, 1], color(0.18f, 0.53f, 0.82f, 1.0f)),
-      newBumpSeries("Team Beta", @[2, 1, 3, 2], color(0.15f, 0.68f, 0.38f, 1.0f)),
-      newBumpSeries("Team Gamma", @[3, 3, 2, 3], color(0.91f, 0.30f, 0.24f, 1.0f))
-    ]
-  )
-  renderAndSave("bump_chart", proc(ctx: Context, font: Font, b: Rect) =
-    drawBumpChart(ctx, font, b, bumpData, cfg)
-  )
-
-  # 61. Sparkline Chart
-  let sparkData = newSparklineData(
-    @[10.0f, 15.0f, 8.0f, 22.0f, 18.0f, 28.0f, 35.0f, 32.0f, 42.0f, 40.0f],
-    color(0.18f, 0.53f, 0.82f, 1.0f),
-    color(0.18f, 0.53f, 0.82f, 0.25f)
-  )
-  renderAndSave("sparkline_chart", proc(ctx: Context, font: Font, b: Rect) =
-    drawSparklineChart(ctx, font, b, sparkData, cfg)
-  )
-
-  # 62. Network Chart
-  let netData = NetworkGraphData(
-    nodes: @[
-      newNetworkNode("n1", "Server", 100.0f, 100.0f, 22.0f, color(0.18f, 0.53f, 0.82f, 1.0f)),
-      newNetworkNode("n2", "Client A", 300.0f, 50.0f, 18.0f, color(0.15f, 0.68f, 0.38f, 1.0f)),
-      newNetworkNode("n3", "Client B", 300.0f, 180.0f, 18.0f, color(0.95f, 0.77f, 0.06f, 1.0f)),
-      newNetworkNode("n4", "Database", 500.0f, 100.0f, 25.0f, color(0.91f, 0.30f, 0.24f, 1.0f))
-    ],
-    edges: @[
-      newNetworkEdge("n1", "n2", 2.0f),
-      newNetworkEdge("n1", "n3", 2.0f),
-      newNetworkEdge("n2", "n4", 3.0f),
-      newNetworkEdge("n3", "n4", 3.0f)
-    ]
-  )
-  renderAndSave("network_chart", proc(ctx: Context, font: Font, b: Rect) =
-    drawNetworkChart(ctx, font, b, netData, cfg)
-  )
-
-  # 63. Org Chart
-  let orgData = newOrgNode("Alice Smith", "CEO", color(0.18f, 0.53f, 0.82f, 1.0f), @[
-    newOrgNode("Bob Jones", "VP Engineering", color(0.15f, 0.68f, 0.38f, 1.0f), @[
-      newOrgNode("Charlie", "Lead Dev", color(0.61f, 0.35f, 0.71f, 1.0f)),
-      newOrgNode("Diana", "QA Lead", color(0.61f, 0.35f, 0.71f, 1.0f))
-    ]),
-    newOrgNode("Eve Brown", "VP Marketing", color(0.95f, 0.77f, 0.06f, 1.0f), @[
-      newOrgNode("Frank", "SEO Lead", color(0.91f, 0.30f, 0.24f, 1.0f))
-    ])
-  ])
-  renderAndSave("orgchart", proc(ctx: Context, font: Font, b: Rect) =
-    drawOrgChart(ctx, font, b, orgData, cfg)
-  )
-
   echo "All gallery charts generated successfully!"
 
-  # Bonus: demonstrate animation-frame export helpers by
+  # Bonus: demonstrate the new animation-frame export helpers by
   # rendering a short animated sequence of the bar chart sweeping in.
+  # Combine the resulting frames into a GIF/MP4 with e.g.:
+  #   ffmpeg -framerate 30 -i output_gallery/anim_barchart_%04d.png -vf "fps=30" barchart.gif
   let font = readFont("Roboto-Regular.ttf")
   let frames = renderAnimationFrames(
     800, 600, 45,
@@ -716,11 +660,9 @@ proc main() =
       drawBarChart(ctx, font, bounds, entries, animCfg),
     easeOutBack
   )
-  createDir("output")
   createDir("output_gallery")
-  discard saveAnimationFrames(frames, "output", "anim_barchart")
   discard saveAnimationFrames(frames, "output_gallery", "anim_barchart")
-  echo "Generated ", frames.len, " animation frames in output/ and output_gallery/"
+  echo "Generated ", frames.len, " animation frames in output_gallery/anim_barchart_*.png"
 
 when isMainModule:
   main()

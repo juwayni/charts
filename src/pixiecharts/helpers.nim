@@ -208,8 +208,8 @@ proc drawSoftShadow*(
 proc renderAnimationFrames*(
   width, height: int,
   frameCount: int,
-  drawProc: proc(ctx: Context, bounds: Rect, progress: float32) {.closure.},
-  easing: proc(t: float32): float32 {.closure.} = easeOut
+  drawProc: proc(ctx: Context, bounds: Rect, progress: float32),
+  easing: proc(t: float32): float32 = easeOut
 ): seq[Image] =
   result = newSeq[Image](max(frameCount, 1))
   let n = max(frameCount, 1)
