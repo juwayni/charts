@@ -1,6 +1,5 @@
-output/
-output_gallery/
 *.nimble-link
 nimcache/
 *.exe
 *.o
+tests/t_gallery_gen
