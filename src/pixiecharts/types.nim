@@ -518,6 +518,49 @@ type
     barColor*: Color
     trackColor*: Color
 
+  # Bump Chart (Rank Over Time)
+  BumpSeries* = object
+    name*: string
+    ranks*: seq[int]
+    color*: Color
+
+  BumpChartData* = object
+    timeLabels*: seq[string]
+    series*: seq[BumpSeries]
+
+  # Compact Sparkline
+  SparklineData* = object
+    values*: seq[float32]
+    lineColor*: Color
+    fillColor*: Color
+    showMinMax*: bool
+
+  # Network / Node-Link Graph
+  NetworkNode* = object
+    id*: string
+    label*: string
+    x*: float32
+    y*: float32
+    radius*: float32
+    color*: Color
+
+  NetworkEdge* = object
+    sourceId*: string
+    targetId*: string
+    weight*: float32
+    color*: Option[Color]
+
+  NetworkGraphData* = object
+    nodes*: seq[NetworkNode]
+    edges*: seq[NetworkEdge]
+
+  # Hierarchical Org Chart
+  OrgNode* = object
+    name*: string
+    title*: string
+    color*: Color
+    children*: seq[OrgNode]
+
 # --- Constructors ---
 
 proc newChartEntry*(
@@ -832,3 +875,40 @@ proc newDendrogramNode*(
   children: seq[DendrogramNode] = @[]
 ): DendrogramNode =
   DendrogramNode(name: name, color: color, children: children)
+
+proc newBumpSeries*(
+  name: string,
+  ranks: seq[int],
+  color: Color = color(0.18f, 0.53f, 0.82f, 1.0f)
+): BumpSeries =
+  BumpSeries(name: name, ranks: ranks, color: color)
+
+proc newSparklineData*(
+  values: seq[float32],
+  lineColor: Color = color(0.18f, 0.53f, 0.82f, 1.0f),
+  fillColor: Color = color(0.18f, 0.53f, 0.82f, 0.2f),
+  showMinMax: bool = true
+): SparklineData =
+  SparklineData(values: values, lineColor: lineColor, fillColor: fillColor, showMinMax: showMinMax)
+
+proc newNetworkNode*(
+  id, label: string,
+  x, y: float32,
+  radius: float32 = 18.0f,
+  color: Color = color(0.18f, 0.53f, 0.82f, 1.0f)
+): NetworkNode =
+  NetworkNode(id: id, label: label, x: x, y: y, radius: radius, color: color)
+
+proc newNetworkEdge*(
+  sourceId, targetId: string,
+  weight: float32 = 2.0f,
+  color: Option[Color] = none(Color)
+): NetworkEdge =
+  NetworkEdge(sourceId: sourceId, targetId: targetId, weight: weight, color: color)
+
+proc newOrgNode*(
+  name, title: string,
+  color: Color = color(0.18f, 0.53f, 0.82f, 1.0f),
+  children: seq[OrgNode] = @[]
+): OrgNode =
+  OrgNode(name: name, title: title, color: color, children: children)

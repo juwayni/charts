@@ -10,32 +10,32 @@ proc withAlpha*(c: Color, a: float32): Color {.inline.} =
 # (usually) [0, 1] progress value; some (easeOutBack / easeOutElastic)
 # briefly overshoot past 1.0 on purpose to create a lively "pop"/"bounce".
 
-proc easeLinear*(t: float32): float32 {.inline.} =
+proc easeLinear*(t: float32): float32 =
   clamp(t, 0.0f, 1.0f)
 
-proc easeOut*(t: float32): float32 {.inline.} =
+proc easeOut*(t: float32): float32 =
   ## Cubic ease-out (kept for backward-compatibility with existing code).
   let c = clamp(t, 0.0f, 1.0f)
   1.0f - pow(1.0f - c, 3.0f)
 
-proc easeIn*(t: float32): float32 {.inline.} =
+proc easeIn*(t: float32): float32 =
   let c = clamp(t, 0.0f, 1.0f)
   c * c * c
 
-proc easeOutCubic*(t: float32): float32 {.inline.} =
+proc easeOutCubic*(t: float32): float32 =
   ## Alias of `easeOut` with an explicit name, for readability at call sites.
   easeOut(t)
 
-proc easeInOutCubic*(t: float32): float32 {.inline.} =
+proc easeInOutCubic*(t: float32): float32 =
   let c = clamp(t, 0.0f, 1.0f)
   if c < 0.5f: 4.0f * c * c * c
   else: 1.0f - pow(-2.0f * c + 2.0f, 3.0f) * 0.5f
 
-proc easeOutQuad*(t: float32): float32 {.inline.} =
+proc easeOutQuad*(t: float32): float32 =
   let c = clamp(t, 0.0f, 1.0f)
   1.0f - (1.0f - c) * (1.0f - c)
 
-proc easeOutBack*(t: float32): float32 {.inline.} =
+proc easeOutBack*(t: float32): float32 =
   ## Overshoots slightly past 1.0 before settling - gives bars/points/
   ## dots a lively little "pop" as they land.
   let c = clamp(t, 0.0f, 1.0f)
@@ -43,7 +43,7 @@ proc easeOutBack*(t: float32): float32 {.inline.} =
   const c3 = c1 + 1.0f
   1.0f + c3 * pow(c - 1.0f, 3.0f) + c1 * pow(c - 1.0f, 2.0f)
 
-proc easeOutElastic*(t: float32): float32 {.inline.} =
+proc easeOutElastic*(t: float32): float32 =
   ## Springy overshoot, good for gauges/needles settling into place.
   let c = clamp(t, 0.0f, 1.0f)
   const p = 0.45f
@@ -52,7 +52,7 @@ proc easeOutElastic*(t: float32): float32 {.inline.} =
   let s = p / 4.0f
   pow(2.0f, -10.0f * c) * sin((c - s) * (2.0f * PI) / p) + 1.0f
 
-proc easeOutCirc*(t: float32): float32 {.inline.} =
+proc easeOutCirc*(t: float32): float32 =
   let c = clamp(t, 0.0f, 1.0f)
   sqrt(1.0f - pow(c - 1.0f, 2.0f))
 
@@ -79,6 +79,48 @@ proc lighten*(c: Color, amount: float32): Color =
 
 proc darken*(c: Color, amount: float32): Color {.inline.} =
   lighten(c, -amount)
+
+# --- Pixie API Compatibility Wrappers ---
+
+proc fillPath*(ctx: Context, path: Path) {.inline.} =
+  ctx.fill(path)
+
+proc strokePath*(ctx: Context, path: Path) {.inline.} =
+  ctx.stroke(path)
+
+proc fillPath*(ctx: Context, path: Path, paint: Paint) {.inline.} =
+  let oldPaint = ctx.fillStyle
+  ctx.fillStyle = paint
+  ctx.fill(path)
+  ctx.fillStyle = oldPaint
+
+proc strokePath*(ctx: Context, path: Path, paint: Paint, strokeWidth: float32 = 1.0f) {.inline.} =
+  let oldPaint = ctx.strokeStyle
+  let oldWidth = ctx.lineWidth
+  ctx.strokeStyle = paint
+  ctx.lineWidth = strokeWidth
+  ctx.stroke(path)
+  ctx.strokeStyle = oldPaint
+  ctx.lineWidth = oldWidth
+
+proc clipPath*(ctx: Context, path: Path) {.inline.} =
+  ctx.clip(path)
+
+proc roundedRect*(p: Path, rect: Rect, rx, ry: float32) {.inline.} =
+  p.roundedRect(rect.x, rect.y, rect.w, rect.h, rx, ry, rx, ry)
+
+proc roundedRect*(p: Path, rect: Rect, r: float32) {.inline.} =
+  p.roundedRect(rect.x, rect.y, rect.w, rect.h, r, r, r, r)
+
+proc roundedRect*(ctx: Context, rect: Rect, r: float32) {.inline.} =
+  var p = newPath()
+  p.roundedRect(rect.x, rect.y, rect.w, rect.h, r, r, r, r)
+  ctx.fill(p)
+
+proc roundedRect*(ctx: Context, rect: Rect, rx, ry: float32) {.inline.} =
+  var p = newPath()
+  p.roundedRect(rect.x, rect.y, rect.w, rect.h, rx, ry, rx, ry)
+  ctx.fill(p)
 
 proc positionStagger*(pos, total, progress: float32, overlap: float32 = 0.5f): float32 =
   ## Like `staggerProgress`, but keyed by a continuous position (e.g. an
@@ -166,8 +208,8 @@ proc drawSoftShadow*(
 proc renderAnimationFrames*(
   width, height: int,
   frameCount: int,
-  drawProc: proc(ctx: Context, bounds: Rect, progress: float32),
-  easing: proc(t: float32): float32 = easeOut
+  drawProc: proc(ctx: Context, bounds: Rect, progress: float32) {.closure.},
+  easing: proc(t: float32): float32 {.closure.} = easeOut
 ): seq[Image] =
   result = newSeq[Image](max(frameCount, 1))
   let n = max(frameCount, 1)
@@ -188,6 +230,11 @@ proc saveAnimationFrames*(frames: seq[Image], directory: string, baseName: strin
     let path = directory / (baseName & "_" & align($i, 4, '0') & ".png")
     img.writeFile(path)
     result.add(path)
+
+proc measureTextSize*(font: Font, text: string): Vec2 =
+  if text.len == 0:
+    return vec2(0, 0)
+  result = font.layoutBounds(text)
 
 proc formatNiceNumber*(v: float32, decimals: int = 1): string =
   ## Formats an axis/value number cleanly: whole numbers print without a
@@ -292,10 +339,6 @@ proc calculateNiceScale*(
   niceMin = floor(minVal / tickSpacing) * tickSpacing
   niceMax = ceil(maxVal / tickSpacing) * tickSpacing
 
-proc measureTextSize*(font: Font, text: string): Vec2 =
-  if text.len == 0:
-    return vec2(0, 0)
-  result = font.layoutBounds(text)
 
 proc calculateFooterHeaderHeight*(
   margin, textSize: float32,
@@ -626,44 +669,3 @@ proc renderChartImage*(
   let ctx = newContext(result)
   drawProc(ctx, rect(0, 0, width.float32, height.float32))
 
-# --- Pixie API Compatibility Wrappers ---
-
-proc fillPath*(ctx: Context, path: Path) {.inline.} =
-  ctx.fill(path)
-
-proc strokePath*(ctx: Context, path: Path) {.inline.} =
-  ctx.stroke(path)
-
-proc fillPath*(ctx: Context, path: Path, paint: Paint) {.inline.} =
-  let oldPaint = ctx.fillStyle
-  ctx.fillStyle = paint
-  ctx.fill(path)
-  ctx.fillStyle = oldPaint
-
-proc strokePath*(ctx: Context, path: Path, paint: Paint, strokeWidth: float32 = 1.0f) {.inline.} =
-  let oldPaint = ctx.strokeStyle
-  let oldWidth = ctx.lineWidth
-  ctx.strokeStyle = paint
-  ctx.lineWidth = strokeWidth
-  ctx.stroke(path)
-  ctx.strokeStyle = oldPaint
-  ctx.lineWidth = oldWidth
-
-proc clipPath*(ctx: Context, path: Path) {.inline.} =
-  ctx.clip(path)
-
-proc roundedRect*(p: Path, rect: Rect, rx, ry: float32) {.inline.} =
-  p.roundedRect(rect.x, rect.y, rect.w, rect.h, rx, ry, rx, ry)
-
-proc roundedRect*(p: Path, rect: Rect, r: float32) {.inline.} =
-  p.roundedRect(rect.x, rect.y, rect.w, rect.h, r, r, r, r)
-
-proc roundedRect*(ctx: Context, rect: Rect, r: float32) {.inline.} =
-  var p = newPath()
-  p.roundedRect(rect.x, rect.y, rect.w, rect.h, r, r, r, r)
-  ctx.fill(p)
-
-proc roundedRect*(ctx: Context, rect: Rect, rx, ry: float32) {.inline.} =
-  var p = newPath()
-  p.roundedRect(rect.x, rect.y, rect.w, rect.h, rx, ry, rx, ry)
-  ctx.fill(p)

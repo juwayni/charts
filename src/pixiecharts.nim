@@ -5,6 +5,7 @@ import pixiecharts/charts/barchart
 import pixiecharts/charts/boxplot_chart
 import pixiecharts/charts/bubble_chart
 import pixiecharts/charts/bullet_chart
+import pixiecharts/charts/bump_chart
 import pixiecharts/charts/calendar_heatmap
 import pixiecharts/charts/candlestick_chart
 import pixiecharts/charts/chord_chart
@@ -28,6 +29,8 @@ import pixiecharts/charts/liquid_gauge
 import pixiecharts/charts/lollipop_chart
 import pixiecharts/charts/marimekko_chart
 import pixiecharts/charts/multiradar_chart
+import pixiecharts/charts/network_chart
+import pixiecharts/charts/orgchart
 import pixiecharts/charts/parallelcoords_chart
 import pixiecharts/charts/pareto_chart
 import pixiecharts/charts/pointchart
@@ -41,6 +44,7 @@ import pixiecharts/charts/ridgeline_chart
 import pixiecharts/charts/sankey_chart
 import pixiecharts/charts/semicircle_meter
 import pixiecharts/charts/slope_chart
+import pixiecharts/charts/sparkline_chart
 import pixiecharts/charts/speedometer_chart
 import pixiecharts/charts/stackedarea_chart
 import pixiecharts/charts/stackedbar_chart
@@ -64,6 +68,7 @@ export barchart
 export boxplot_chart
 export bubble_chart
 export bullet_chart
+export bump_chart
 export calendar_heatmap
 export candlestick_chart
 export chord_chart
@@ -87,6 +92,8 @@ export liquid_gauge
 export lollipop_chart
 export marimekko_chart
 export multiradar_chart
+export network_chart
+export orgchart
 export parallelcoords_chart
 export pareto_chart
 export pointchart
@@ -100,6 +107,7 @@ export ridgeline_chart
 export sankey_chart
 export semicircle_meter
 export slope_chart
+export sparkline_chart
 export speedometer_chart
 export stackedarea_chart
 export stackedbar_chart
