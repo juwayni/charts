@@ -1,5 +1,6 @@
 import pixiecharts/types
 import pixiecharts/helpers
+import pixiecharts/window_viewer
 import pixiecharts/charts/arcdiagram_chart
 import pixiecharts/charts/barchart
 import pixiecharts/charts/boxplot_chart
@@ -59,6 +60,7 @@ import pixiecharts/charts/wordcloud_chart
 
 export types
 export helpers
+export window_viewer
 export arcdiagram_chart
 export barchart
 export boxplot_chart

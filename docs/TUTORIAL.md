@@ -135,7 +135,30 @@ ffmpeg -framerate 30 -i frames_dir/candlestick_%04d.png -c:v libx264 -pix_fmt yu
 
 ---
 
-## Tutorial 5: Building Executive KPI Dashboards
+## Tutorial 5: Live Window Display & Native App Preview
+
+`pixiecharts` includes a built-in `showChartWindow` routine to open native window previews on desktop systems:
+
+```nim
+import pixiecharts
+
+let entries = @[
+  newChartEntry(100.0f, "North"),
+  newChartEntry(180.0f, "South"),
+  newChartEntry(140.0f, "East")
+]
+let cfg = defaultChartConfig()
+
+showChartWindow("Regional Sales", 800, 600, proc(ctx: Context, bounds: Rect, progress: float32) =
+  var animCfg = cfg
+  animCfg.animationProgress = progress
+  drawBarChart(ctx, font, bounds, entries, animCfg)
+)
+```
+
+---
+
+## Tutorial 6: Building Executive KPI Dashboards
 
 Combine multiple charts or use specialized dashboard cards like `drawKpiCardChart`:
 

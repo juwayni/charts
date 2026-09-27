@@ -71,6 +71,46 @@ when isMainModule:
 
 ---
 
+## 🖥️ Live Window Preview & GUI App Integration
+
+`pixiecharts` can be used both as a standalone library to display interactive live windows or as a renderer inside any Nim GUI framework (Fidget, Raylib, NimyGUI, Webview, Mummy, Jester):
+
+### 1. Standalone Window Preview
+
+```nim
+import pixiecharts
+
+let entries = @[
+  newChartEntry(100.0f, "Jan"),
+  newChartEntry(250.0f, "Feb"),
+  newChartEntry(180.0f, "Mar")
+]
+let cfg = defaultChartConfig()
+
+# Opens a native window preview rendering the animated chart
+showChartWindow("Monthly Sales", 800, 600, proc(ctx: Context, bounds: Rect, progress: float32) =
+  var animCfg = cfg
+  animCfg.animationProgress = progress
+  drawBarChart(ctx, font, bounds, entries, animCfg)
+)
+```
+
+### 2. Integration with Desktop GUI Frameworks or Web Servers
+
+Because every chart procedure renders into standard Pixie `Context` and `Image` structures, you can blit `renderToImage` output onto any canvas or return RGBA/PNG bytes directly from HTTP endpoints:
+
+```nim
+# Render chart directly to a Pixie Image instance
+let image = renderToImage(800, 600, proc(ctx: Context, bounds: Rect) =
+  drawBarChart(ctx, font, bounds, entries, cfg)
+)
+
+# Convert to PNG string for web HTTP response
+let pngData = image.encodeImg(PngFormat)
+```
+
+---
+
 ## 🎬 Generating Animated Sequences (GIF / MP4)
 
 PixieCharts makes rendering animated frame sequences trivial:

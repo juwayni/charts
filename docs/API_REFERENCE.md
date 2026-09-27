@@ -150,6 +150,34 @@ proc saveAnimationFrames*(
   directory: string,
   baseName: string = "frame"
 ): seq[string]
+
+# --- Window Viewer & Canvas Integration (`pixiecharts/window_viewer`) ---
+
+proc renderToImage*(
+  width, height: int,
+  drawProc: proc(ctx: Context, bounds: Rect)
+): Image
+
+proc renderChartToPNG*(
+  filepath: string,
+  width, height: int,
+  drawProc: proc(ctx: Context, bounds: Rect)
+)
+
+proc renderAnimatedChartToPNGs*(
+  directory, baseName: string,
+  width, height: int,
+  frameCount: int,
+  drawProc: proc(ctx: Context, bounds: Rect, progress: float32),
+  easing: proc(t: float32): float32 = nil
+)
+
+proc showChartWindow*(
+  title: string = "PixieCharts Window Preview",
+  width: int = 800,
+  height: int = 600,
+  drawProc: proc(ctx: Context, bounds: Rect, progress: float32)
+)
 ```
 
 ---
